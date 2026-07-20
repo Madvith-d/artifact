@@ -1,4 +1,4 @@
-# user-service
+# profile-service
 
 To install dependencies:
 

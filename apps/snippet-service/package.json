@@ -1,5 +1,5 @@
 {
-  "name": "problem-service",
+  "name": "snippet-service",
   "module": "index.ts",
   "type": "module",
   "private": true,

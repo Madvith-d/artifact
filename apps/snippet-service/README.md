@@ -1,4 +1,4 @@
-# submission-service
+# snippet-service
 
 To install dependencies:
 
