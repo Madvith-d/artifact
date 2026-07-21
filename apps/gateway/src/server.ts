@@ -1,11 +1,9 @@
 import app from "./app";
 
 
-const { port, fetch } = app;
+const port = process.env.PORT || 3000;
 
-
-
-fetch.listen(port);
+app.listen(port);
 
 console.log(`Server running on port ${port}`);
 

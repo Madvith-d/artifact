@@ -11,7 +11,4 @@ app.get("/health", (_req, res) => {
   });
 });
 
-export default {
-  port: 3000,
-  fetch: app,
-};
+export default app;

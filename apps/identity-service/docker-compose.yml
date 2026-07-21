@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  identity-db:
+    image: postgres:16-alpine
+    container_name: identity_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: identity_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - identity_db_data:/var/lib/postgresql/data
+
+volumes:
+  identity_db_data:
