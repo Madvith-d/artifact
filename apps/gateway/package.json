@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
-"scripts": {
+  "scripts": {
     "dev": "bun --watch src/server.ts"
   },
   "devDependencies": {
@@ -16,6 +16,7 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "morgan": "^1.11.0",
     "pino-http": "^11.0.0"
