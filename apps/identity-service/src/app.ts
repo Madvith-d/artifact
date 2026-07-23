@@ -7,13 +7,10 @@ app.use(morgan("dev"));
 app.use("/auth", authRoutes);
 
 app.get("/health", (_req, res) => {
-  res.json({ 
+  res.json({
     service: "auth-service",
-    status: "OK" 
+    status: "OK",
   });
 });
 
-export default {
-  port: 3001,
-  fetch: app,
-};
+export default app;

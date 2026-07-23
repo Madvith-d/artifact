@@ -8,8 +8,8 @@ const registerSchema = z.object({
 });
 export const handleRegister = async (req: Request, res: Response) => {
   try {
-    const validatedData = registerSchema.parse(req.body);
-    const user = await register(validatedData);
+    // const validatedData = registerSchema.parse(req.body);
+    const user = await register(req.body);
     return res.status(201).json({ data: user });
   } catch (error) {
     return res.status(500).json({
