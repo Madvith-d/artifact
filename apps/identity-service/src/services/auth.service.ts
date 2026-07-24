@@ -1,4 +1,3 @@
-import { email } from "zod";
 import {
   createUser,
   findUserByUsername,
@@ -6,6 +5,7 @@ import {
 } from "../repository/user.repository";
 import { generateToken } from "../utils/jwt";
 import bcrypt from "bcryptjs";
+import { ConflictError, UnauthorizedError, InternalServerError } from "../utils/errors";
 
 export const register = async (payload: {
   username: string;
@@ -14,25 +14,37 @@ export const register = async (payload: {
 }) => {
   const existingUser = await findUserByUsername(payload.username);
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new ConflictError("Username already exists");
   }
 
   const existingEmail = await findUserByEmail(payload.email);
   if (existingEmail) {
-    throw new Error("Email already exists");
+    throw new ConflictError("Email already exists");
   }
 
-  const user = await createUser(payload);
+  const passwordHash = await bcrypt.hash(payload.password, 10);
+
+  const user = await createUser({
+    username: payload.username,
+    email: payload.email,
+    passwordHash,
+  });
+
   if (!user) {
-    throw new Error("Failed to create user");
+    throw new InternalServerError("Failed to create user");
   }
-  return user;
+
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+  };
 };
 
 export const login = async (payload: { email: string; password: string }) => {
   const user = await findUserByEmail(payload.email);
   if (!user) {
-    throw new Error("User not found");
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   const validPassword = await bcrypt.compare(
@@ -40,7 +52,7 @@ export const login = async (payload: { email: string; password: string }) => {
     user.passwordHash,
   );
   if (!validPassword) {
-    throw new Error("Invalid password");
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   const token = generateToken(user);

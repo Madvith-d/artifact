@@ -15,8 +15,8 @@ export const verifiedRoute = (
   const token = authHeader.replace(/^bearer\s+/i, "").trim();
 
   try {
-    const decodedToken = verifyToken(token);
-    (request as any).user = decodedToken;
+    const decodedToken = verifyToken(token) as { id: string; email: string };
+    request.user = decodedToken;
     next();
   } catch (error) {
     response.status(401).json({ error: "Invalid or expired token" });

@@ -1,12 +1,23 @@
 import type { Request, Response } from "express";
 import { register, login } from "../services/auth.service";
+import { AppError } from "../utils/errors";
+
 export const handleRegister = async (req: Request, res: Response) => {
   try {
-    // const validatedData = registerSchema.parse(req.body);
     const user = await register(req.body);
-    return res.status(201).json({ data: user });
+    return res.status(201).json({
+      success: true,
+      data: user,
+    });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+    }
     return res.status(500).json({
+      success: false,
       message: "Internal server error",
       error: error instanceof Error ? error.message : String(error),
     });
@@ -27,6 +38,12 @@ export const loginUser = async (req: Request, res: Response) => {
       data,
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Failed to login",
@@ -37,7 +54,13 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const getMe = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
     return res.status(200).json({
       success: true,
       data: {
@@ -46,6 +69,12 @@ export const getMe = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Failed to get user",
