@@ -1,0 +1,16 @@
+services:
+  snippet-db:
+    image: postgres:16-alpine
+    container_name: snippet_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: snippet_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - snippet_db_data:/var/lib/postgresql/data
+
+volumes:
+  snippet_db_data:
