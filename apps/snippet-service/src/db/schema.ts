@@ -22,6 +22,9 @@ export const languageEnum = pgEnum("language", [
 
 export const visibilityEnum = pgEnum("visibility", ["public", "private"]);
 
+export type Language = (typeof languageEnum.enumValues)[number];
+export type Visibility = (typeof visibilityEnum.enumValues)[number];
+
 export const snippets = pgTable(
   "snippets",
   {
