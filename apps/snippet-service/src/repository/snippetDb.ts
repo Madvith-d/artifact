@@ -1,6 +1,6 @@
 import { db } from "../db/db";
 import { snippets, type Language, type Visibility } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 export const createSnippet = async (payload: {
   title: string;
@@ -53,6 +53,27 @@ export const findSnippetByOwner = async (
       .select()
       .from(snippets)
       .where(eq(snippets.ownerId, ownerId))
+      .limit(limit)
+      .offset(offset);
+    return snippet;
+  } catch (error) {
+    throw new Error("Failed to find snippet");
+  }
+};
+
+export const getSnippetsPublic = async (
+  ownerId: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  try {
+    const offset = (page - 1) * limit;
+    const snippet = await db
+      .select()
+      .from(snippets)
+      .where(
+        and(eq(snippets.ownerId, ownerId), eq(snippets.visibility, "public")),
+      )
       .limit(limit)
       .offset(offset);
     return snippet;
