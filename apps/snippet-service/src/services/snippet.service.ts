@@ -4,6 +4,7 @@ import {
   findSnippetByOwner,
   updateSnippet,
   deleteSnippet,
+  getSnippetsPublic,
 } from "../repository/snippetDb";
 import type { Language, Visibility } from "../db/schema";
 export const createSnippetService = async (payload: {
@@ -30,6 +31,19 @@ export const getAllSnippetsService = async (
 ) => {
   try {
     return await findSnippetByOwner(ownerId, page, limit);
+  } catch (error) {
+    console.error("Error fetching snippets:", error);
+    throw new Error("Failed to fetch snippets");
+  }
+};
+
+export const getAllPublicSnippetsService = async (
+  ownerId: string,
+  page: number,
+  limit: number,
+) => {
+  try {
+    return await getSnippetsPublic(ownerId, page, limit);
   } catch (error) {
     console.error("Error fetching snippets:", error);
     throw new Error("Failed to fetch snippets");
