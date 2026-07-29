@@ -13,7 +13,7 @@ export const createSnippet = async (payload: {
   try {
     const id = crypto.randomUUID();
     const { title, description, language, code, visibility, ownerId } = payload;
-    return db.insert(snippets).values({
+    const result = await db.insert(snippets).values({
       id: id,
       title: title,
       description: description,
@@ -23,7 +23,8 @@ export const createSnippet = async (payload: {
       ownerId: ownerId,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    }).returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to create snippet");
   }
@@ -106,7 +107,7 @@ export const updateSnippet = async (
 ) => {
   try {
     const { title, description, language, code, visibility } = payload;
-    return db
+    const result = await db
       .update(snippets)
       .set({
         title: title,
@@ -116,7 +117,9 @@ export const updateSnippet = async (
         visibility: visibility,
         updatedAt: new Date(),
       })
-      .where(eq(snippets.id, id));
+      .where(eq(snippets.id, id))
+      .returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to update snippet");
   }
@@ -124,8 +127,8 @@ export const updateSnippet = async (
 
 export const deleteSnippet = async (id: string) => {
   try {
-    const snippet = await db.delete(snippets).where(eq(snippets.id, id));
-    return snippet;
+    const result = await db.delete(snippets).where(eq(snippets.id, id)).returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to delete snippet");
   }
