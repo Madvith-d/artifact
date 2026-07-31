@@ -85,10 +85,11 @@ export const getSnippetsPublic = async (
 
 export const updateSnippet = async (
   id: string,
+  ownerId: string,
   payload: {
     title?: string;
     description?: string;
-    language:
+    language?:
       | "typescript"
       | "javascript"
       | "python"
@@ -117,7 +118,7 @@ export const updateSnippet = async (
         visibility: visibility,
         updatedAt: new Date(),
       })
-      .where(eq(snippets.id, id))
+      .where(and(eq(snippets.id, id), eq(snippets.ownerId, ownerId)))
       .returning();
     return result[0];
   } catch (error) {
@@ -125,9 +126,12 @@ export const updateSnippet = async (
   }
 };
 
-export const deleteSnippet = async (id: string) => {
+export const deleteSnippet = async (id: string, ownerId: string) => {
   try {
-    const result = await db.delete(snippets).where(eq(snippets.id, id)).returning();
+    const result = await db
+      .delete(snippets)
+      .where(and(eq(snippets.id, id), eq(snippets.ownerId, ownerId)))
+      .returning();
     return result[0];
   } catch (error) {
     throw new Error("Failed to delete snippet");

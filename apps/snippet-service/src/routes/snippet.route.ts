@@ -22,16 +22,11 @@ const createSnippetSchema = z.object({
 });
 
 const updateSnippetSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  language: z.string(),
-  code: z.string(),
-  visibility: z.string(),
-});
-
-const deleteSnippetSchema = z.object({
-  id: z.string(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  language: z.string().optional(),
+  code: z.string().optional(),
+  visibility: z.string().optional(),
 });
 
 const paginationSchema = z.object({
@@ -49,6 +44,6 @@ router.get("/", verifiedRoute, validate(paginationSchema, "query"), handleGetSni
 router.get("/:id", optionalAuth, handleGetOneSnippet);
 
 router.patch("/:id", verifiedRoute, validate(updateSnippetSchema), handleSnippetUpdate);
-router.delete("/:id", verifiedRoute, validate(deleteSnippetSchema), handleSnippetDelete);
+router.delete("/:id", verifiedRoute, handleSnippetDelete);
 
 export default router;

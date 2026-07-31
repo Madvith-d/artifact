@@ -58,14 +58,18 @@ export const handleGetAllPublicSnippets = async (
 export const handleSnippetUpdate = async (req: Request, res: Response) => {
   try {
     const user = req.user as { id: string; email: string };
-    const { id, title, description, language, code, visibility } = req.body;
-    const snippet = await updateSnippetService(id, {
+    const id = req.params.id as string;
+    const { title, description, language, code, visibility } = req.body;
+    const snippet = await updateSnippetService(id, user.id, {
       title,
       description,
       language,
       code,
       visibility,
     });
+    if (!snippet) {
+      return res.status(404).json({ error: "Snippet not found" });
+    }
     return res.status(200).json({ message: "Snippet updated", snippet });
   } catch (error) {
     console.error("Error updating snippet:", error);
@@ -76,8 +80,11 @@ export const handleSnippetUpdate = async (req: Request, res: Response) => {
 export const handleSnippetDelete = async (req: Request, res: Response) => {
   try {
     const user = req.user as { id: string; email: string };
-    const { id } = req.body;
-    const snippet = await deleteSnippetService(id);
+    const id = req.params.id as string;
+    const snippet = await deleteSnippetService(id, user.id);
+    if (!snippet) {
+      return res.status(404).json({ error: "Snippet not found" });
+    }
     return res.status(200).json({ message: "Snippet deleted", snippet });
   } catch (error) {
     console.error("Error deleting snippet:", error);
