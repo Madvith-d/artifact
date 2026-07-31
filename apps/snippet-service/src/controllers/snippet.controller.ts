@@ -3,6 +3,7 @@ import {
   createSnippetService,
   getAllSnippetsService,
   getAllPublicSnippetsService,
+  getSnippetByIdService,
   updateSnippetService,
   deleteSnippetService,
 } from "../services/snippet.service";
@@ -83,3 +84,32 @@ export const handleSnippetDelete = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to delete snippet" });
   }
 };
+
+export const handleGetOneSnippet = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const user = req.user;
+    const snippet = await getSnippetByIdService(id);
+
+    if (!snippet) {
+      return res.status(404).json({ error: "Snippet not found" });
+    }
+
+    if (snippet.visibility === "public") {
+      return res.status(200).json({ message: "Snippet fetched", snippet });
+    }
+
+    if (snippet.visibility === "private") {
+      if (user && user.id === snippet.ownerId) {
+        return res.status(200).json({ message: "Snippet fetched", snippet });
+      }
+      return res.status(404).json({ error: "Snippet not found" });
+    }
+
+    return res.status(404).json({ error: "Snippet not found" });
+  } catch (error) {
+    console.error("Error fetching snippet:", error);
+    return res.status(500).json({ error: "Failed to fetch snippet" });
+  }
+};
+
