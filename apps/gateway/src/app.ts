@@ -14,7 +14,8 @@ app.get("/health", (_req: Request, res: Response) => {
 
 app.use("/api/auth", async (req: Request, res: Response) => {
   try {
-    const identityServiceUrl = process.env.IDENTITY_SERVICE_URL || "http://localhost:3001";
+    const identityServiceUrl =
+      process.env.IDENTITY_SERVICE_URL || "http://localhost:3001";
     const path = req.originalUrl.replace(/^\/api/, "");
     const targetUrl = `${identityServiceUrl}${path}`;
 
@@ -38,6 +39,37 @@ app.use("/api/auth", async (req: Request, res: Response) => {
     return res.status(500).json({
       error: "GATEWAY_ERROR",
       message: "Failed to connect to Identity Service",
+    });
+  }
+});
+
+app.use("/api/snippet", async (req: Request, res: Response) => {
+  try {
+    const snippetServiceUrl =
+      process.env.SNIPPET_SERVICE_URL || "http://localhost:3003";
+    const path = req.originalUrl.replace(/^\/api/, "");
+    const targetUrl = `${snippetServiceUrl}${path}`;
+
+    const upstreamResponse = await fetch(targetUrl, {
+      method: req.method,
+      headers: {
+        "content-type": req.headers["content-type"] ?? "application/json",
+        authorization: req.headers.authorization ?? "",
+      },
+      body: ["GET", "HEAD"].includes(req.method)
+        ? undefined
+        : JSON.stringify(req.body),
+    });
+    const contentType = upstreamResponse.headers.get("content-type") ?? "";
+    const body = await upstreamResponse.text();
+    res.status(upstreamResponse.status);
+    res.setHeader("content-type", contentType);
+    res.send(body);
+  } catch (error) {
+    console.error("Proxy error:", error);
+    return res.status(500).json({
+      error: "GATEWAY_ERROR",
+      message: "Failed to connect to Snippet Service",
     });
   }
 });

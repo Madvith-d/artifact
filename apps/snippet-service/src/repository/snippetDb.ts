@@ -1,6 +1,6 @@
 import { db } from "../db/db";
 import { snippets, type Language, type Visibility } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 export const createSnippet = async (payload: {
   title: string;
@@ -13,7 +13,7 @@ export const createSnippet = async (payload: {
   try {
     const id = crypto.randomUUID();
     const { title, description, language, code, visibility, ownerId } = payload;
-    return db.insert(snippets).values({
+    const result = await db.insert(snippets).values({
       id: id,
       title: title,
       description: description,
@@ -23,7 +23,8 @@ export const createSnippet = async (payload: {
       ownerId: ownerId,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    }).returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to create snippet");
   }
@@ -61,12 +62,34 @@ export const findSnippetByOwner = async (
   }
 };
 
+export const getSnippetsPublic = async (
+  ownerId: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  try {
+    const offset = (page - 1) * limit;
+    const snippet = await db
+      .select()
+      .from(snippets)
+      .where(
+        and(eq(snippets.ownerId, ownerId), eq(snippets.visibility, "public")),
+      )
+      .limit(limit)
+      .offset(offset);
+    return snippet;
+  } catch (error) {
+    throw new Error("Failed to find snippet");
+  }
+};
+
 export const updateSnippet = async (
   id: string,
+  ownerId: string,
   payload: {
     title?: string;
     description?: string;
-    language:
+    language?:
       | "typescript"
       | "javascript"
       | "python"
@@ -85,7 +108,7 @@ export const updateSnippet = async (
 ) => {
   try {
     const { title, description, language, code, visibility } = payload;
-    return db
+    const result = await db
       .update(snippets)
       .set({
         title: title,
@@ -95,16 +118,21 @@ export const updateSnippet = async (
         visibility: visibility,
         updatedAt: new Date(),
       })
-      .where(eq(snippets.id, id));
+      .where(and(eq(snippets.id, id), eq(snippets.ownerId, ownerId)))
+      .returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to update snippet");
   }
 };
 
-export const deleteSnippet = async (id: string) => {
+export const deleteSnippet = async (id: string, ownerId: string) => {
   try {
-    const snippet = await db.delete(snippets).where(eq(snippets.id, id));
-    return snippet;
+    const result = await db
+      .delete(snippets)
+      .where(and(eq(snippets.id, id), eq(snippets.ownerId, ownerId)))
+      .returning();
+    return result[0];
   } catch (error) {
     throw new Error("Failed to delete snippet");
   }
