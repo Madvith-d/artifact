@@ -1,11 +1,9 @@
 import express from "express";
 import morgan from "morgan";
-//import { v4 as uuidv4 } from "uuid";
-import { publishJob } from "./queue/rabbitmq";
-import type { ExecutionJob } from "./types/execute";
-const app = express();
-app.use(express.json());
+import executionRoutes from "./routes/execution.routes";
 
+const app = express();
+app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
 app.get("/health", (_req, res) => {
@@ -15,5 +13,6 @@ app.get("/health", (_req, res) => {
   });
 });
 
-//TODO
+app.use(executionRoutes);
+
 export default app;

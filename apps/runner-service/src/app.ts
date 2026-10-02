@@ -1,17 +1,14 @@
 import express from "express";
 import morgan from "morgan";
-const app = express();
 
+const app = express();
 app.use(morgan("dev"));
 
 app.get("/health", (_req, res) => {
-  res.json({ 
-    service: "auth-service",
-    status: "OK" 
+  res.json({
+    service: "runner-service",
+    status: "OK",
   });
 });
 
-export default {
-  port: 3005,
-  fetch: app,
-};
+export default app;

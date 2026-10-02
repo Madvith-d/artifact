@@ -73,4 +73,34 @@ app.use("/api/snippet", async (req: Request, res: Response) => {
     });
   }
 });
+
+app.use("/api/execute", async (req: Request, res: Response) => {
+  try {
+    const executionServiceUrl =
+      process.env.EXECUTION_SERVICE_URL || "http://localhost:3004";
+    const path = req.originalUrl.replace(/^\/api/, "");
+    const upstreamResponse = await fetch(`${executionServiceUrl}${path}`, {
+      method: req.method,
+      headers: {
+        "content-type": req.headers["content-type"] ?? "application/json",
+        authorization: req.headers.authorization ?? "",
+      },
+      body: ["GET", "HEAD"].includes(req.method)
+        ? undefined
+        : JSON.stringify(req.body),
+    });
+    const contentType = upstreamResponse.headers.get("content-type") ?? "";
+    const body = await upstreamResponse.text();
+    res.status(upstreamResponse.status);
+    res.setHeader("content-type", contentType);
+    res.send(body);
+  } catch (error) {
+    console.error("Proxy error:", error);
+    return res.status(500).json({
+      error: "GATEWAY_ERROR",
+      message: "Failed to connect to Execution Service",
+    });
+  }
+});
+
 export default app;
