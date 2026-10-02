@@ -1,4 +1,4 @@
-import { verifyToken } from "../utils/jwt";
+import { verifyToken } from "@artifact/auth";
 import type { NextFunction, Request, Response } from "express";
 export const verifiedRoute = (
   req: Request,

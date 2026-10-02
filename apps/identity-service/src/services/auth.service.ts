@@ -3,7 +3,7 @@ import {
   findUserByUsername,
   findUserByEmail,
 } from "../repository/user.repository";
-import { generateToken } from "../utils/jwt";
+import { generateToken } from "@artifact/auth";
 import bcrypt from "bcryptjs";
 import { ConflictError, UnauthorizedError, InternalServerError } from "../utils/errors";
 
